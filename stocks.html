@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Best Stocks Based on Sharpe Ratio</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+
+      h1 {
+        font-size: 2em;
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+        text-align: center;
+      }
+
+      button {
+        background-color: #007bff;
+        border: none;
+        border-radius: 3px;
+        color: #fff;
+        font-size: 1.2em;
+        padding: 0.5em 1em;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0062cc;
+      }
+
+      #loading-symbol {
+        display: none;
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-top: 1em;
+        text-align: center;
+      }
+
+      #stock-list {
+        list-style: none;
+        margin: 1em auto;
+        padding: 0;
+        width: 80%;
+      }
+
+      #stock-list li {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-size: 1.2em;
+        margin-bottom: 0.5em;
+        padding: 0.5em;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      #predictions {
+        margin-top: 1em;
+        padding: 1em;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        display: none;
+      }
+    </style>
+    <script>
+      $(document).ready(function() {
+        // Hide the loading symbol when the page is first loaded
+        $("#loading-symbol").hide();
+
+        $("#btn-best-stocks").click(function() {
+          // Show the loading symbol when the button is clicked
+          $("#loading-symbol").show();
+
+          $.get("/best-stocks", function(data) {
+            // Hide the loading symbol when the data is received
+            $("#loading-symbol").hide();
+
+            // Empty the list and append the new data
+            $("#stock-list").empty();
+            $.each(data, function(index, value) {
+              $("#stock-list").append("<li>" + value + "</li>");
+            });
+
+            // Attach click event to each list item
+            $("#stock-list li").click(function() {
+              var stock = $(this).text();
+              $.get("/predict-stock/" + stock, function(predictions) {
+
+              var predictionsString = JSON.stringify(predictions, null, 2);
+              // Show the predictions in the frontend
+              $("#predictions").html("<pre>" + predictionsString + "</pre>");
+              $("#predictions").show();
+              });
+            });
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Best Stocks Based on Sharpe Ratio</h1>
+    <button id="btn-best-stocks">Get Best Stocks</button>
+    <div id="loading-symbol">Loading...</div>
+
+    <ul id="stock-list">
+      {% for stock in stocks %}
+        <li>{{ stock }}</li>
+      {% endfor %}
+    </ul>
+
+    <div id="predictions"></div>
+  </body>
+</html>
