@@ -33,8 +33,7 @@ class App extends React.Component {
     await fetch("http://127.0.0.1:5000/select-tickers/DOW_JONES", {
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
-        mode: "cors",
+        'Content-Type': "application/json",
       },
       method: "GET",
     })

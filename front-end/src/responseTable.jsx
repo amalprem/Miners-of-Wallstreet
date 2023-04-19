@@ -68,11 +68,11 @@ export function DisplayNewsData ({newsData}) {
     )
 }
 export function DisplayCompleteData({response}){
-    const { final_score, model_pred, news_output, tweet_sentiment } = response;
+    const { final_score, model_pred, news_output, tweet_sentiment, stock } = response;
     if(response && news_output){
       return (
         <>
-          <p>And so we have our predictions saying...</p>
+          <p>And so we have our predictions for {stock} saying...</p>
           <table>
             <tbody>
               <tr>

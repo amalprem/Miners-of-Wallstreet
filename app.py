@@ -1,5 +1,5 @@
 from flask import Flask, render_template,request
-from flask_cors import CORS
+from flask_cors import CORS,cross_origin
 import pandas as pd
 import numpy as np
 import datetime as dt
@@ -633,6 +633,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/')
+@cross_origin()
 def index():
     # Render the HTML template
     return "Test Call success"
@@ -647,6 +648,7 @@ def best_stocks():
     return jsonify(stocks)
 
 @app.route('/select-tickers/<string:index>')
+@cross_origin()
 def enlistTickers(index):
     print('Inside fetch tickers')
     # data = request.args
@@ -660,11 +662,13 @@ def enlistTickers(index):
     return response
 
 @app.route('/predict-stock/<string:stock>')
+@cross_origin()
 def predict_stock(stock):
     news_output = news_analyser(stock)
     flag = model_predictions(stock)
     tweet_status = tweet_sentiment(stock)
     response = {
+        'stock': stock,
         'news_output': news_output[-1],
         'model_pred': 'Yes' if flag else 'No',
         'tweet_sentiment': tweet_status
