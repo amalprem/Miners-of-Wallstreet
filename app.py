@@ -318,55 +318,15 @@ def fetch_tickers(index):
     check_list = ['W', 'R', 'P', 'Q']
     del_set = set()
     sav_set = set()
-    match index:
-        case "DOW_JONES":
-            ticker_var = set(si.tickers_dow())
-            for stock in ticker_var:
-                if len(stock) > 4 and stock[-1] in check_list:
-                    del_set.add(stock)
-                else:
-                    sav_set.add(stock)
-            allTickers = list(sav_set)            
-            return allTickers
-        case "FTS_100":
-            ticker_var = set(si.tickers_ftse100())
-            for stock in ticker_var:
-                if len(stock) > 4 and stock[-1] in check_list:
-                    del_set.add(stock)
-                else:
-                    sav_set.add(stock)
-            allTickers = list(sav_set)            
-            return allTickers 
-        case "NASDAQ":
-            ticker_var = set(si.tickers_nasdaq())
-            for stock in ticker_var:
-                if len(stock) > 4 and stock[-1] in check_list:
-                    del_set.add(stock)
-                else:
-                    sav_set.add(stock)
-            allTickers = list(sav_set)            
-            return allTickers
-        case "NIFTY50":
-            print('inside NIFTY50 case')
-            ticker_var = set(si.tickers_nifty50(include_company_data = True))
-            print(ticker_var)
-            for stock in ticker_var:
-                if len(stock) > 4 and stock[-1] in check_list:
-                    del_set.add(stock)
-                else:
-                    sav_set.add(stock)
-            allTickers = list(sav_set)            
-            return allTickers
-        case default:
-            print('inside default case')
-            ticker_var = set(si.tickers_other())
-            for stock in ticker_var:
-                if len(stock) > 4 and stock[-1] in check_list:
-                    del_set.add(stock)
-                else:
-                    sav_set.add(stock)
-            allTickers = list(sav_set)
-            return allTickers
+    if index == "DOW_JONES":
+        ticker_var = set(si.tickers_dow())
+        for stock in ticker_var:
+            if len(stock) > 4 and stock[-1] in check_list:
+                del_set.add(stock)
+            else:
+                sav_set.add(stock)
+        allTickers = list(sav_set)            
+        return allTickers
 
 
 # Stock Data Scrape
@@ -472,15 +432,14 @@ def company_tweets(company):
 
 
 def tweet_sentiment(ticker):
-    match ticker:
-        case 'AMZN':
-            return company_tweets('Amazon')
-        case 'AAPL':
-            return company_tweets('Apple')
-        case 'GOOG':
-            return company_tweets('Google')
-        case default:
-            return 'NEUTRAL'
+    if ticker == "AMZN":
+        return company_tweets('Amazon')
+    if ticker == "AAPL":
+        return company_tweets('Apple')
+    if ticker == "GOOG":
+        return company_tweets('Google')
+    else:
+        return 'NEUTRAL'
 
 def model_predictions(ticker):
     def sma(df,window,feature):
@@ -556,67 +515,69 @@ def model_predictions(ticker):
        'ADX_2', 'DMP_2', 'DMN_2', 'ADX_5', 'DMP_5', 'DMN_5', 'Stochastic_2_D',
        'Stochastic_5_D', 'RSI_2', 'RSI_5', 'BBL_2', 'BBU_2', 'BBL_5', 'BBU_5']
     
-    match ticker:
-        case 'AMZN':
-            with open('./models/trained_models_amzn.pkl', 'rb') as f:
+    if ticker == "AMZN":
+        with open('./models/trained_models_amzn.pkl', 'rb') as f:
                 models = pickle.load(f)
-            model_to_be_ran={}
-            for key,value in models.items():
-                if key=='BaggingClassifier':
-                    continue
-                else:
-                    model_to_be_ran[key]=value
-            
-            # Assume you have new data in a pandas DataFrame named 'new_data'
-            # Make predictions using all the models
-            output_values = [model.predict(test_data[features]) for model in model_to_be_ran.values() ]
-            combined_output = np.array(output_values).T
-            output_df = pd.DataFrame(combined_output, columns=model_to_be_ran.keys())
-            
-            # Use the bagging classifier to get the final prediction
-            bagging = models['BaggingClassifier']
-            bagging_output = bagging.predict(output_df)
-            return bagging_output[0]
-        case 'AAPL':
-            with open('./models/trained_models_aapl.pkl', 'rb') as f:
+        model_to_be_ran={}
+        for key,value in models.items():
+            if key=='BaggingClassifier':
+                continue
+            else:
+                model_to_be_ran[key]=value
+        
+        # Assume you have new data in a pandas DataFrame named 'new_data'
+        # Make predictions using all the models
+        output_values = [model.predict(test_data[features]) for model in model_to_be_ran.values() ]
+        combined_output = np.array(output_values).T
+        output_df = pd.DataFrame(combined_output, columns=model_to_be_ran.keys())
+        
+        # Use the bagging classifier to get the final prediction
+        bagging = models['BaggingClassifier']
+        bagging_output = bagging.predict(output_df)
+        return bagging_output[0]
+    
+    if ticker == "APPL":
+        with open('./models/trained_models_aapl.pkl', 'rb') as f:
                 models = pickle.load(f)
-            model_to_be_ran={}
-            for key,value in models.items():
-                if key=='BaggingClassifier':
-                    continue
-                else:
-                    model_to_be_ran[key]=value
+        model_to_be_ran={}
+        for key,value in models.items():
+            if key=='BaggingClassifier':
+                continue
+            else:
+                model_to_be_ran[key]=value
+        
+        # Assume you have new data in a pandas DataFrame named 'new_data'
+        # Make predictions using all the models
+        output_values = [model.predict(test_data[features]) for model in model_to_be_ran.values() ]
+        combined_output = np.array(output_values).T
+        output_df = pd.DataFrame(combined_output, columns=model_to_be_ran.keys())
+        
+        # Use the bagging classifier to get the final prediction
+        bagging = models['BaggingClassifier']
+        bagging_output = bagging.predict(output_df)
+        return bagging_output[0]
             
-            # Assume you have new data in a pandas DataFrame named 'new_data'
-            # Make predictions using all the models
-            output_values = [model.predict(test_data[features]) for model in model_to_be_ran.values() ]
-            combined_output = np.array(output_values).T
-            output_df = pd.DataFrame(combined_output, columns=model_to_be_ran.keys())
+    if ticker == "GOOG":
+        with open('./models/trained_models_goog.pkl', 'rb') as f:
+            models = pickle.load(f)
+        model_to_be_ran={}
+        for key,value in models.items():
+            if key=='BaggingClassifier':
+                continue
+            else:
+                model_to_be_ran[key]=value
+        
+        # Assume you have new data in a pandas DataFrame named 'new_data'
+        # Make predictions using all the models
+        output_values = [model.predict(test_data[features]) for model in model_to_be_ran.values() ]
+        combined_output = np.array(output_values).T
+        output_df = pd.DataFrame(combined_output, columns=model_to_be_ran.keys())
+        
+        # Use the bagging classifier to get the final prediction
+        bagging = models['BaggingClassifier']
+        bagging_output = bagging.predict(output_df)
+        return bagging_output[0]
             
-            # Use the bagging classifier to get the final prediction
-            bagging = models['BaggingClassifier']
-            bagging_output = bagging.predict(output_df)
-            return bagging_output[0]
-        case 'GOOG':
-            with open('./models/trained_models_goog.pkl', 'rb') as f:
-                models = pickle.load(f)
-            model_to_be_ran={}
-            for key,value in models.items():
-                if key=='BaggingClassifier':
-                    continue
-                else:
-                    model_to_be_ran[key]=value
-            
-            # Assume you have new data in a pandas DataFrame named 'new_data'
-            # Make predictions using all the models
-            output_values = [model.predict(test_data[features]) for model in model_to_be_ran.values() ]
-            combined_output = np.array(output_values).T
-            output_df = pd.DataFrame(combined_output, columns=model_to_be_ran.keys())
-            
-            # Use the bagging classifier to get the final prediction
-            bagging = models['BaggingClassifier']
-            bagging_output = bagging.predict(output_df)
-            return bagging_output[0]
 
 def investGuru(response):
     score = 'gray'
